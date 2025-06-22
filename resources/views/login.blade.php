@@ -29,7 +29,7 @@
             background-image: url('/imagem1.jpg');
             background-size: cover;
             background-position: center center;
-            filter: blur(3px) brightness(0.8); /* Desfoca e escurece o fundo para destacar o formulário */
+            filter: blur(2px) brightness(0.8); /* Desfoca e escurece o fundo para destacar o formulário */
         }
         
         /* Estilo para o contêiner do formulário */
