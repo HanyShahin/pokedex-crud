@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pokédex CRUD - 1ª Geração</title>
+    <title>Pokédex - Kanto</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="css/pokedex.css">
+    <link rel="stylesheet" href="{{ asset('css/pokedex.css') }}">
 </head>
 <body class="bg-slate-900 text-white pb-12">
 
@@ -26,7 +26,7 @@
         
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
                 <i class="fas fa-sign-out-alt mr-2"></i>Sair
             </button>
         </form>
@@ -34,8 +34,8 @@
 
     <main class="container mx-auto px-4">
         <div class="text-center mb-8">
-            <button id="add-pokemon-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300">
-                <i class="fas fa-plus mr-2"></i> Adicionar Novo Pokémon
+            <button id="add-pokemon-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg">
+                <i class="fas fa-plus mr-2"></i> Registrar Captura
             </button>
         </div>
 
@@ -43,43 +43,43 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div class="md:col-span-1">
                     <label for="search-input" class="block text-slate-400 mb-2 font-semibold">Buscar por Nome:</label>
-                    <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-slate-400 mb-2 font-semibold">Filtrar por Tipo:</label>
                     <div id="type-filter-buttons" class="flex flex-wrap gap-2">
-                        <button class="type-filter-btn active px-3 py-1.5 rounded-full text-sm font-semibold bg-indigo-600 text-white transition-transform duration-200" data-type="all">Todos</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass transition-transform duration-200" data-type="grass">Grass</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fire transition-transform duration-200" data-type="fire">Fire</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-water transition-transform duration-200" data-type="water">Water</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-bug transition-transform duration-200" data-type="bug">Bug</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-normal transition-transform duration-200" data-type="normal">Normal</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison transition-transform duration-200" data-type="poison">Poison</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric transition-transform duration-200" data-type="electric">Electric</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ground transition-transform duration-200" data-type="ground">Ground</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fairy transition-transform duration-200" data-type="fairy">Fairy</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fighting transition-transform duration-200" data-type="fighting">Fighting</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic transition-transform duration-200" data-type="psychic">Psychic</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-rock transition-transform duration-200" data-type="rock">Rock</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ghost transition-transform duration-200" data-type="ghost">Ghost</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ice transition-transform duration-200" data-type="ice">Ice</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-dragon transition-transform duration-200" data-type="dragon">Dragon</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-flying transition-transform duration-200" data-type="flying">Flying</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-steel transition-transform duration-200" data-type="steel">Steel</button>
+                        <button class="type-filter-btn active px-3 py-1.5 rounded-full text-sm font-semibold bg-indigo-600 text-white" data-type="all">Todos</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass" data-type="grass">Grass</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fire" data-type="fire">Fire</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-water" data-type="water">Water</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-bug" data-type="bug">Bug</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-normal" data-type="normal">Normal</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison" data-type="poison">Poison</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric" data-type="electric">Electric</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ground" data-type="ground">Ground</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fairy" data-type="fairy">Fairy</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fighting" data-type="fighting">Fighting</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic" data-type="psychic">Psychic</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-rock" data-type="rock">Rock</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ghost" data-type="ghost">Ghost</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ice" data-type="ice">Ice</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-dragon" data-type="dragon">Dragon</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-flying" data-type="flying">Flying</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-steel" data-type="steel">Steel</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="pokemon-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
-        <div id="loader" class="hidden justify-center items-center py-16"><div class="pokeball-loader"></div></div>
+        <div id="loader" class="flex justify-center items-center py-16"><div class="pokeball-loader"></div></div>
     </main>
 
     <div id="pokemon-modal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-50 hidden">
-        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-full overflow-y-auto transform transition-all duration-300 scale-95 opacity-0">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-full overflow-y-auto">
             <form id="pokemon-form" class="p-8">
                 <input type="hidden" id="pokemon-id">
-                <h2 id="modal-title" class="text-3xl font-bold mb-6 text-center">Adicionar Pokémon</h2>
+                <h2 id="modal-title" class="text-3xl font-bold mb-6 text-center">Registrar Nova Captura</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <div class="relative mb-4">
@@ -128,10 +128,10 @@
     </div>
 
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg transform translate-x-[120%]">
-        <p id="toast-message">Operação realizada com sucesso!</p>
+        <p id="toast-message"></p>
     </div>
 
-    <script src="js/pokedex.js"></script>
+    <script src="{{ asset('js/pokedex.js') }}" defer></script>
 
 </body>
 </html>

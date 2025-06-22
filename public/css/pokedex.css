@@ -31,17 +31,17 @@ body {
 .type-bug { background-color: #A8B820; border: 1px solid #8D9A17; }
 .type-normal { background-color: #A8A878; border: 1px solid #8A8A62; }
 .type-poison { background-color: #A040A0; border: 1px solid #803380; }
-.type-electric { background-color: #F8D030; border: 1px solid #DBB82A; }
-.type-ground { background-color: #E0C068;  border: 1px solid #C4A85A; }
-.type-fairy { background-color: #EE99AC;  border: 1px solid #DE8AA0; }
+.type-electric { background-color: #F8D030; color: black; border: 1px solid #DBB82A; }
+.type-ground { background-color: #E0C068; color: black; border: 1px solid #C4A85A; }
+.type-fairy { background-color: #EE99AC; color: black; border: 1px solid #DE8AA0; }
 .type-fighting { background-color: #C03028; border: 1px solid #9A2822; }
 .type-psychic { background-color: #F85888; border: 1px solid #F62C6C; }
 .type-rock { background-color: #B8A038; border: 1px solid #99852F; }
 .type-ghost { background-color: #705898; border: 1px solid #554378; }
-.type-ice { background-color: #98D8D8;  border: 1px solid #7CC6C6; }
+.type-ice { background-color: #98D8D8; color: black; border: 1px solid #7CC6C6; }
 .type-dragon { background-color: #7038F8; border: 1px solid #4C08F4; }
 .type-dark { background-color: #705848; border: 1px solid #514036; }
-.type-steel { background-color: #B8B8D0;  border: 1px solid #9999B1; }
+.type-steel { background-color: #B8B8D0; color: black; border: 1px solid #9999B1; }
 .type-flying { background-color: #A890F0; border: 1px solid #896BEB; }
 
 /* --- ESTILOS DOS CARDS E ANIMAÇÕES --- */
@@ -58,7 +58,7 @@ body {
     font-weight: 700;
 }
 
-/* --- ESTILO PARA A SILHUETA --- */
+/* --- NOVO: ESTILO PARA A SILHUETA --- */
 .pokemon-card.silhouette {
     cursor: default;
 }
