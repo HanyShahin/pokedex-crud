@@ -1,30 +1,36 @@
 <?php
 
-// app/Http/Controllers/PokemonController.php
 namespace App\Http\Controllers;
 
 use App\Models\Pokemon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PokemonController extends Controller
 {
-    // READ: Retorna todos os Pokémon
+    /**
+     * READ: Retorna os Pokémon APENAS do usuário logado.
+     */
     public function index()
     {
-        $pokemons = Pokemon::orderBy('number', 'asc')->get();
+        $pokemons = Pokemon::where('user_id', Auth::id())
+                           ->orderBy('number', 'asc')
+                           ->get();
+
         return response()->json($pokemons);
     }
 
-    // CREATE: Salva um novo Pokémon
+    /**
+     * CREATE: Salva um novo Pokémon associado ao usuário logado.
+     */
     public function store(Request $request)
     {
-        // Validação completa para todos os campos
         $validator = Validator::make($request->all(), [
-            'number'      => 'required|integer|unique:pokemons,number',
+            'number'      => 'required|integer',
             'name'        => 'required|string|max:255',
             'type1'       => 'required|string|max:50',
-            'type2'       => 'nullable|string|max:50', // Permite que seja nulo ou uma string
+            'type2'       => 'nullable|string|max:50',
             'height'      => 'required|numeric|min:0',
             'weight'      => 'required|numeric|min:0',
             'description' => 'required|string',
@@ -32,18 +38,41 @@ class PokemonController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422); // 422 é mais específico para falha de validação
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $pokemon = Pokemon::create($request->all());
+        $data = $request->all();
+        $data['user_id'] = Auth::id(); // Adiciona o ID do usuário logado
+
+        $pokemon = Pokemon::create($data); // Cria o Pokémon com o user_id
+
         return response()->json($pokemon, 201);
     }
 
-    // UPDATE: Atualiza um Pokémon existente
+    /**
+     * READ (SINGLE): Retorna um único Pokémon, verificando se ele pertence ao usuário.
+     */
+    public function show(Pokemon $pokemon)
+    {
+        if ($pokemon->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+
+        return response()->json($pokemon);
+    }
+
+
+    /**
+     * UPDATE: Atualiza um Pokémon, verificando se ele pertence ao usuário.
+     */
     public function update(Request $request, Pokemon $pokemon)
     {
+        if ($pokemon->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
+        
         $validator = Validator::make($request->all(), [
-            'number'      => 'required|integer|unique:pokemons,number,' . $pokemon->id,
+            'number'      => 'required|integer',
             'name'        => 'required|string|max:255',
             'type1'       => 'required|string|max:50',
             'type2'       => 'nullable|string|max:50',
@@ -58,19 +87,21 @@ class PokemonController extends Controller
         }
 
         $pokemon->update($request->all());
+
         return response()->json($pokemon);
     }
 
-    // DELETE: Remove um Pokémon
+    /**
+     * DELETE: Remove um Pokémon, verificando se ele pertence ao usuário.
+     */
     public function destroy(Pokemon $pokemon)
     {
-        $pokemon->delete();
-        return response()->json(null, 204);
-    }
+        if ($pokemon->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Não autorizado'], 403);
+        }
 
-    // READ (SINGLE): Retorna um único Pokémon
-    public function show(Pokemon $pokemon)
-    {
-        return response()->json($pokemon);
+        $pokemon->delete();
+
+        return response()->json(null, 204);
     }
 }

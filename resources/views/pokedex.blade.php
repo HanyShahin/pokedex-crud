@@ -33,7 +33,7 @@
         .type-steel { background-color: #B8B8D0; color: black; }
         .type-flying { background-color: #A890F0; color: white; }
         .pokemon-card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, opacity 0.3s;
         }
         .pokemon-card:hover {
             transform: translateY(-8px);
@@ -58,6 +58,12 @@
         ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
         .type-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; text-transform: capitalize; }
+        /* Estilo para botão de filtro ativo */
+        .type-filter-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white pb-12">
@@ -85,6 +91,29 @@
             </button>
         </div>
 
+        <div class="mb-8 p-4 bg-slate-800 rounded-lg shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div class="md:col-span-1">
+                    <label for="search-input" class="block text-slate-400 mb-2 font-semibold">Buscar por Nome:</label>
+                    <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-slate-400 mb-2 font-semibold">Filtrar por Tipo:</label>
+                    <div id="type-filter-buttons" class="flex flex-wrap gap-2">
+                        <button class="type-filter-btn active px-3 py-1.5 rounded-full text-sm font-semibold bg-indigo-600 text-white transition-transform duration-200" data-type="all">Todos</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fire transition-transform duration-200" data-type="fire">Fire</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-water transition-transform duration-200" data-type="water">Water</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass transition-transform duration-200" data-type="grass">Grass</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric transition-transform duration-200" data-type="electric">Electric</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic transition-transform duration-200" data-type="psychic">Psychic</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-bug transition-transform duration-200" data-type="bug">Bug</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison transition-transform duration-200" data-type="poison">Poison</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-normal transition-transform duration-200" data-type="normal">Normal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="pokemon-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
         <div id="loader" class="hidden justify-center items-center py-16"><div class="pokeball-loader"></div></div>
     </main>
@@ -94,12 +123,11 @@
             <form id="pokemon-form" class="p-8">
                 <input type="hidden" id="pokemon-id">
                 <h2 id="modal-title" class="text-3xl font-bold mb-6 text-center">Adicionar Pokémon</h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <div class="relative mb-4">
                             <label for="name" class="block text-slate-400 mb-1">Nome</label>
-                            <input type="text" id="name" name="name" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required autocomplete="off">
+                            <input type="text" id="name" name="name" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2" required autocomplete="off">
                             <div id="autocomplete-results" class="absolute z-10 w-full bg-slate-600 border border-slate-500 rounded-md shadow-lg mt-1 hidden max-h-60 overflow-y-auto"></div>
                         </div>
                         <div class="mb-4">
@@ -134,16 +162,15 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="mt-8 flex justify-end space-x-4">
-                    <button type="button" id="cancel-btn" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Cancelar</button>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Salvar</button>
+                    <button type="button" id="cancel-btn" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg">Cancelar</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg transform translate-x-[120%] transition-transform duration-500 ease-in-out">
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg transform translate-x-[120%]">
         <p id="toast-message">Operação realizada com sucesso!</p>
     </div>
 
@@ -162,6 +189,7 @@
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toast-message');
         
+        // Form
         const nameInput = document.getElementById('name');
         const numberInput = document.getElementById('number');
         const imageUrlInput = document.getElementById('image_url');
@@ -171,6 +199,11 @@
         const weightInput = document.getElementById('weight');
         const descriptionInput = document.getElementById('description');
         const autocompleteResults = document.getElementById('autocomplete-results');
+
+        // Filtros
+        const searchInput = document.getElementById('search-input');
+        const typeFilterButtons = document.getElementById('type-filter-buttons');
+        let activeTypeFilter = 'all';
 
         let allPokemonList = [];
 
@@ -204,6 +237,8 @@
                         const type2Badge = p.type2 ? `<span class="type-badge type-${p.type2.toLowerCase()}">${p.type2}</span>` : '';
                         const card = document.createElement('div');
                         card.className = 'pokemon-card bg-slate-800 rounded-lg shadow-md overflow-hidden flex flex-col';
+                        // Adicionando data-types para o filtro
+                        card.dataset.types = `${p.type1.toLowerCase()}${p.type2 ? ',' + p.type2.toLowerCase() : ''}`;
                         card.innerHTML = `
                             <div class="p-4 bg-slate-700 flex justify-between items-center">
                                  <p class="font-bold text-lg">#${String(p.number).padStart(3, '0')}</p>
@@ -229,6 +264,7 @@
                 loader.classList.add('hidden');
                 loader.classList.remove('flex');
                 addCardEventListeners();
+                filterAndSearch();
             }
         };
 
@@ -237,64 +273,41 @@
             const id = document.getElementById('pokemon-id').value;
             const url = id ? `${BASE_URL}/${id}` : BASE_URL;
             const formData = new FormData(modalForm);
-            if (id) {
-                formData.append('_method', 'PUT');
-            }
+            if (id) { formData.append('_method', 'PUT'); }
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: formData
-                });
+                const response = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }, body: formData });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    const errorMessages = Object.values(errorData.errors).map(e => e.join('\n')).join('\n');
-                    throw new Error(errorMessages);
+                    throw new Error(Object.values(errorData.errors).flat().join('\n'));
                 }
-                showToast(id ? 'Pokémon atualizado com sucesso!' : 'Pokémon adicionado com sucesso!');
+                showToast(id ? 'Pokémon atualizado!' : 'Pokémon adicionado!');
                 closeModal();
                 renderPokemons();
-            } catch (error) {
-                console.error('Erro ao salvar Pokémon:', error);
-                showToast(error.message || 'Erro ao salvar.', 'bg-red-500');
-            }
+            } catch (error) { showToast(error.message || 'Erro ao salvar.', 'bg-red-500'); }
         };
 
         const handleDelete = async (id) => {
             if (!confirm('Tem certeza que deseja soltar este Pokémon?')) return;
             try {
-                const response = await fetch(`${BASE_URL}/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
-                });
+                const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }});
                 if (!response.ok) throw new Error('Falha ao soltar o Pokémon.');
                 showToast('Pokémon solto com sucesso!', 'bg-yellow-500');
                 renderPokemons();
             } catch (error) { console.error('Erro ao excluir:', error); }
         };
-
-        // --- FUNÇÕES DE UI E LÓGICA DO MODAL ---
         
-        // ***** FUNÇÃO openModal ATUALIZADA PARA LIDAR COM EDIÇÃO *****
         const openModal = async (pokemonId = null) => {
             modalForm.reset();
             document.getElementById('pokemon-id').value = '';
             autocompleteResults.innerHTML = '';
             autocompleteResults.classList.add('hidden');
-            
-            // Habilita o campo de nome para o caso de estar desabilitado
             nameInput.disabled = false;
-
             if (pokemonId) {
-                // MODO EDIÇÃO
                 modalTitle.innerText = "Editar Pokémon";
                 try {
-                    // Busca os dados do NOSSO banco de dados
                     const response = await fetch(`${BASE_URL}/${pokemonId}`);
-                    if (!response.ok) throw new Error('Não foi possível carregar os dados do Pokémon.');
+                    if (!response.ok) throw new Error('Não foi possível carregar os dados.');
                     const pokemon = await response.json();
-                    
-                    // Preenche o formulário com os dados salvos
                     document.getElementById('pokemon-id').value = pokemon.id;
                     nameInput.value = pokemon.name;
                     numberInput.value = pokemon.number;
@@ -304,13 +317,8 @@
                     heightInput.value = pokemon.height;
                     weightInput.value = pokemon.weight;
                     descriptionInput.value = pokemon.description;
-                } catch (error) {
-                    console.error(error);
-                    showToast(error.message, 'bg-red-500');
-                    return; // Não abre o modal se houver erro
-                }
+                } catch (error) { showToast(error.message, 'bg-red-500'); return; }
             } else {
-                // MODO CRIAÇÃO
                 modalTitle.innerText = "Adicionar Pokémon";
             }
             modal.classList.remove('hidden');
@@ -325,15 +333,13 @@
         const showToast = (message, colorClass = 'bg-green-500') => {
             toastMessage.innerText = message;
             toast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out ${colorClass} translate-x-0`;
-            setTimeout(() => {
-                toast.style.transform = 'translateX(120%)';
-            }, 3000);
+            setTimeout(() => { toast.style.transform = 'translateX(120%)'; }, 3000);
         };
 
         const onSuggestionClick = async (pokemon) => {
             autocompleteResults.innerHTML = '';
             autocompleteResults.classList.add('hidden');
-            nameInput.value = 'Carregando dados...';
+            nameInput.value = 'Carregando...';
             nameInput.disabled = true;
             try {
                 const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.id}/`);
@@ -345,28 +351,33 @@
                 weightInput.value = details.weight / 10;
                 type1Input.value = details.types[0].type.name;
                 type2Input.value = details.types[1] ? details.types[1].type.name : '';
-            } catch (error) {
-                console.error("Erro ao buscar detalhes do Pokémon:", error);
-                showToast("Não foi possível carregar os detalhes.", "bg-red-500");
-                nameInput.value = '';
-            } finally {
-                nameInput.disabled = false;
-            }
+            } catch (error) { showToast("Não foi possível carregar os detalhes.", "bg-red-500"); nameInput.value = '';
+            } finally { nameInput.disabled = false; }
         };
 
-        // ***** FUNÇÃO addCardEventListeners ATUALIZADA PARA CHAMAR O MODAL DE EDIÇÃO *****
         const addCardEventListeners = () => {
             document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openModal(parseInt(button.dataset.id)); // Reativado!
-                });
+                button.addEventListener('click', (e) => { e.stopPropagation(); openModal(parseInt(button.dataset.id)); });
             });
             document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    handleDelete(parseInt(button.dataset.id));
-                });
+                button.addEventListener('click', (e) => { e.stopPropagation(); handleDelete(parseInt(button.dataset.id)); });
+            });
+        };
+        
+        // --- FUNÇÃO DE FILTRO E BUSCA ---
+        const filterAndSearch = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const pokemonCards = document.querySelectorAll('.pokemon-card');
+            pokemonCards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const types = card.dataset.types.split(',');
+                const nameMatch = name.includes(searchTerm);
+                const typeMatch = activeTypeFilter === 'all' || types.includes(activeTypeFilter);
+                if (nameMatch && typeMatch) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         };
 
@@ -378,10 +389,7 @@
         nameInput.addEventListener('input', () => {
             const query = nameInput.value.toLowerCase();
             autocompleteResults.innerHTML = '';
-            if (query.length < 2) {
-                autocompleteResults.classList.add('hidden');
-                return;
-            }
+            if (query.length < 2) { autocompleteResults.classList.add('hidden'); return; }
             const suggestions = allPokemonList.filter(p => p.name.startsWith(query)).slice(0, 7);
             if (suggestions.length > 0) {
                 suggestions.forEach(pokemon => {
@@ -392,8 +400,17 @@
                     autocompleteResults.appendChild(suggestionDiv);
                 });
                 autocompleteResults.classList.remove('hidden');
-            } else {
-                autocompleteResults.classList.add('hidden');
+            } else { autocompleteResults.classList.add('hidden'); }
+        });
+        
+        searchInput.addEventListener('input', filterAndSearch);
+        typeFilterButtons.addEventListener('click', (e) => {
+            const button = e.target.closest('.type-filter-btn');
+            if (button) {
+                typeFilterButtons.querySelector('.active')?.classList.remove('active', 'bg-indigo-600', 'text-white');
+                button.classList.add('active', 'bg-indigo-600', 'text-white');
+                activeTypeFilter = button.dataset.type;
+                filterAndSearch();
             }
         });
 
