@@ -101,14 +101,23 @@
                     <label class="block text-slate-400 mb-2 font-semibold">Filtrar por Tipo:</label>
                     <div id="type-filter-buttons" class="flex flex-wrap gap-2">
                         <button class="type-filter-btn active px-3 py-1.5 rounded-full text-sm font-semibold bg-indigo-600 text-white transition-transform duration-200" data-type="all">Todos</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass transition-transform duration-200" data-type="grass">Grass</button>
                         <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fire transition-transform duration-200" data-type="fire">Fire</button>
                         <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-water transition-transform duration-200" data-type="water">Water</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass transition-transform duration-200" data-type="grass">Grass</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric transition-transform duration-200" data-type="electric">Electric</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic transition-transform duration-200" data-type="psychic">Psychic</button>
                         <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-bug transition-transform duration-200" data-type="bug">Bug</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison transition-transform duration-200" data-type="poison">Poison</button>
                         <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-normal transition-transform duration-200" data-type="normal">Normal</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison transition-transform duration-200" data-type="poison">Poison</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric transition-transform duration-200" data-type="electric">Electric</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ground transition-transform duration-200" data-type="ground">Ground</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fairy transition-transform duration-200" data-type="fairy">Fairy</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fighting transition-transform duration-200" data-type="fighting">Fighting</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic transition-transform duration-200" data-type="psychic">Psychic</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-rock transition-transform duration-200" data-type="rock">Rock</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ghost transition-transform duration-200" data-type="ghost">Ghost</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ice transition-transform duration-200" data-type="ice">Ice</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-dragon transition-transform duration-200" data-type="dragon">Dragon</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-flying transition-transform duration-200" data-type="flying">Flying</button>
+                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-steel transition-transform duration-200" data-type="steel">Steel</button>
                     </div>
                 </div>
             </div>
@@ -203,7 +212,7 @@
         // Filtros
         const searchInput = document.getElementById('search-input');
         const typeFilterButtons = document.getElementById('type-filter-buttons');
-        let activeTypeFilter = 'all';
+        let activeTypeFilter = 'all'; 
 
         let allPokemonList = [];
 
@@ -237,7 +246,6 @@
                         const type2Badge = p.type2 ? `<span class="type-badge type-${p.type2.toLowerCase()}">${p.type2}</span>` : '';
                         const card = document.createElement('div');
                         card.className = 'pokemon-card bg-slate-800 rounded-lg shadow-md overflow-hidden flex flex-col';
-                        // Adicionando data-types para o filtro
                         card.dataset.types = `${p.type1.toLowerCase()}${p.type2 ? ',' + p.type2.toLowerCase() : ''}`;
                         card.innerHTML = `
                             <div class="p-4 bg-slate-700 flex justify-between items-center">
@@ -367,8 +375,7 @@
         // --- FUNÇÃO DE FILTRO E BUSCA ---
         const filterAndSearch = () => {
             const searchTerm = searchInput.value.toLowerCase();
-            const pokemonCards = document.querySelectorAll('.pokemon-card');
-            pokemonCards.forEach(card => {
+            document.querySelectorAll('.pokemon-card').forEach(card => {
                 const name = card.querySelector('h3').textContent.toLowerCase();
                 const types = card.dataset.types.split(',');
                 const nameMatch = name.includes(searchTerm);
