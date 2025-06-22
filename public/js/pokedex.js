@@ -63,21 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.dataset.types = `${p.type1.toLowerCase()}${p.type2 ? ',' + p.type2.toLowerCase() : ''}`;
                     card.innerHTML = `
                         <div class="p-4 bg-slate-700 flex justify-between items-center">
-                            <p class="font-bold text-lg">#${String(p.number).padStart(3, '0')}</p>
+                             <p class="font-bold text-lg">#${String(p.number).padStart(3, '0')}</p>
                             <div class="flex space-x-2">
-                                <button class="edit-btn text-blue-400 hover:text-blue-300" data-id="${p.id}"><i class="fas fa-edit"></i></button>
+                                 <button class="edit-btn text-blue-400 hover:text-blue-300" data-id="${p.id}"><i class="fas fa-edit"></i></button>
                                 <button class="delete-btn text-red-500 hover:text-red-400" data-id="${p.id}"><i class="fas fa-trash"></i></button>
                             </div>
-                        </div>
+                         </div>
                         <div class="flex-grow flex flex-col items-center p-4">
                             <img src="${p.image_url}" alt="${p.name}" class="w-32 h-32 md:w-40 md:h-40 object-contain">
-                            <h3 class="text-2xl font-bold mt-4 capitalize">${p.name}</h3>
+                             <h3 class="text-2xl font-bold mt-4 capitalize">${p.name}</h3>
                             <div class="flex space-x-2 mt-2">
                                 <span class="type-badge type-${p.type1.toLowerCase()}">${p.type1}</span>
-                                ${type2Badge}
+                                 ${type2Badge}
                             </div>
                         </div>
-                    `;
+                     `;
                     grid.appendChild(card);
                 });
             }

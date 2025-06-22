@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pokédex - Kanto</title>
+    <title>Pokédex CRUD - 1ª Geração</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="{{ asset('css/pokedex.css') }}">
+    <link rel="stylesheet" href="css/pokedex.css">
 </head>
 <body class="bg-slate-900 text-white pb-12">
 
@@ -132,7 +131,7 @@
         <p id="toast-message">Operação realizada com sucesso!</p>
     </div>
 
-    <script src="{{ asset('js/pokedex.js') }}" defer></script>
+    <script src="js/pokedex.js"></script>
 
 </body>
 </html>
