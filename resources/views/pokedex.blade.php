@@ -22,6 +22,15 @@
                 Pokédex - Kanto
             </h1>
             <p class="text-slate-400 mt-2">Bem-vindo, {{ Auth::user()->name }}!</p>
+            <div class="mt-4 max-w-sm">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-base font-medium text-slate-300">Progresso da Captura</span>
+                    <span id="progress-text" class="text-sm font-medium text-slate-300">0 / 151</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-4 shadow-inner">
+                    <div id="progress-bar-fill" class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
         </div>
         
         <form method="POST" action="{{ route('logout') }}">
@@ -44,6 +53,11 @@
                 <div class="md:col-span-1">
                     <label for="search-input" class="block text-slate-400 mb-2 font-semibold">Buscar por Nome:</label>
                     <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
+
+                    <div class="flex items-center mt-4">
+                    <input id="show-caught-only-checkbox" type="checkbox" class="h-4 w-4 rounded border-slate-500 bg-slate-600 text-indigo-600 focus:ring-indigo-500">
+                    <label for="show-caught-only-checkbox" class="ml-2 text-sm font-medium text-slate-300">Mostrar apenas capturados</label>
+                </div>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-slate-400 mb-2 font-semibold">Filtrar por Tipo:</label>
@@ -68,9 +82,10 @@
                         <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-steel" data-type="steel">Steel</button>
                     </div>
                 </div>
+                
             </div>
         </div>
-
+        
         <div id="pokemon-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
         <div id="loader" class="flex justify-center items-center py-16"><div class="pokeball-loader"></div></div>
     </main>

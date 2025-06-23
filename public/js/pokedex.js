@@ -22,11 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const autocompleteResults = document.getElementById('autocomplete-results');
     const searchInput = document.getElementById('search-input');
     const typeFilterButtons = document.getElementById('type-filter-buttons');
+    const showCaughtOnlyCheckbox = document.getElementById('show-caught-only-checkbox');
+    const progressText = document.getElementById('progress-text');
+    const progressBarFill = document.getElementById('progress-bar-fill');
     
     // --- ESTADO DA APLICAÇÃO ---
     let allPokemonDetails = []; 
     let caughtPokemonMap = new Map();
     let activeTypeFilter = 'all';
+
+    const updateProgressBar = () => {
+        const caughtCount = caughtPokemonMap.size;
+        const totalCount = allPokemonDetails.length || 151;
+
+        if (!progressText || !progressBarFill) return;
+
+        const percentage = totalCount > 0 ? (caughtCount / totalCount) * 100 : 0;
+        
+        progressText.textContent = `${caughtCount} / ${totalCount}`;
+        progressBarFill.style.width = `${percentage}%`;
+    };
 
     // --- FUNÇÕES DE GERAÇÃO DE HTML ---
     const createCaughtCardHTML = (pokemon) => {
@@ -75,7 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0').then(res => res.ok ? res.json() : Promise.reject('Falha ao buscar na PokéAPI'))
             ]);
 
-            caughtPokemonMap = new Map(caughtResponse.map(p => [p.number, p]));
+            caughtPokemonMap = new Map(caughtResponse.map(p => [parseInt(p.number, 10), p]));
+
             
             const detailPromises = apiListResponse.results.map(p => fetch(p.url).then(res => res.json()));
             allPokemonDetails = await Promise.all(detailPromises);
@@ -107,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.style.display = 'none';
             addCardEventListeners();
             filterAndSearch();
+            updateProgressBar();
         }
     };
 
@@ -114,6 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('pokemon-id').value;
+
+        // NOVO: Verifica se o Pokémon já foi capturado antes de enviar
+        if (!id) { // A verificação só acontece ao criar um novo (quando não há ID)
+            const pokemonNumber = parseInt(numberInput.value, 10);
+            if (caughtPokemonMap.has(pokemonNumber)) {
+                showToast('Este Pokémon já foi capturado!', 'bg-yellow-500');
+                return; // Impede o envio do formulário
+            }
+        }
+        
         const url = id ? `${BASE_URL}/${id}` : BASE_URL;
         const formData = new FormData(modalForm);
         if (id) { formData.append('_method', 'PUT'); }
@@ -139,7 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(id ? 'Pokémon atualizado!' : 'Captura registrada!');
             closeModal();
             filterAndSearch();
-        } catch (error) { showToast(error.message || 'Erro ao salvar.', 'bg-red-500'); }
+            updateProgressBar();
+        } catch (error) { 
+            showToast(error.message || 'Erro ao salvar.', 'bg-red-500'); 
+        }
     };
 
     const handleDelete = async (id, cardElement) => {
@@ -159,7 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             showToast('Pokémon solto com sucesso!', 'bg-yellow-500');
             filterAndSearch();
-        } catch (error) { console.error('Erro ao excluir:', error); }
+            updateProgressBar();
+        } catch (error) { 
+            console.error('Erro ao excluir:', error); 
+        }
     };
     
     const openModal = async (pokemonId = null) => {
@@ -191,9 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModal = () => { modal.classList.add('hidden'); };
 
     const showToast = (message, colorClass = 'bg-green-500') => {
+        // FIX: Limpa qualquer transformação inline anterior para garantir que o toast possa reaparecer.
+        toast.style.transform = ''; 
+
         toastMessage.innerText = message;
         toast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out ${colorClass} translate-x-0`;
-        setTimeout(() => { toast.style.transform = 'translateX(120%)'; }, 3000);
+        
+        setTimeout(() => { 
+            toast.style.transform = 'translateX(120%)'; 
+        }, 3000);
     };
 
     const onSuggestionClick = async (pokemon) => {
@@ -212,8 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 type1Input.value = details.types[0].type.name;
                 type2Input.value = details.types[1] ? details.types[1].type.name : '';
             }
-        } catch (error) { showToast("Não foi possível carregar os detalhes.", "bg-red-500"); nameInput.value = '';
-        } finally { nameInput.disabled = false; }
+        } catch (error) { 
+            showToast("Não foi possível carregar os detalhes.", "bg-red-500"); 
+            nameInput.value = '';
+        } finally { 
+            nameInput.disabled = false; 
+        }
     };
 
     const addCardEventListenersForCard = (card) => {
@@ -233,12 +276,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const filterAndSearch = () => {
         const searchTerm = searchInput.value.toLowerCase();
+        const showCaughtOnly = showCaughtOnlyCheckbox.checked;
         document.querySelectorAll('.pokemon-card').forEach(card => {
             const name = card.dataset.pokename.toLowerCase();
             const types = card.dataset.types.split(',');
+            const isCaught = !card.classList.contains('silhouette'); 
             const nameMatch = name.includes(searchTerm);
             const typeMatch = activeTypeFilter === 'all' || types.includes(activeTypeFilter);
-            if (nameMatch && typeMatch) {
+            const caughtMatch = !showCaughtOnly || isCaught;
+            if (nameMatch && typeMatch && caughtMatch) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
@@ -255,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const query = nameInput.value.toLowerCase();
         autocompleteResults.innerHTML = '';
         if (query.length < 2) { autocompleteResults.classList.add('hidden'); return; }
-        // Sugere apenas Pokémon que ainda não foram capturados
         const suggestions = allPokemonDetails.filter(p => !caughtPokemonMap.has(p.id) && p.name.startsWith(query)).slice(0, 7);
         if (suggestions.length > 0) {
             suggestions.forEach(pokemon => {
@@ -270,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     searchInput.addEventListener('input', filterAndSearch);
+    showCaughtOnlyCheckbox.addEventListener('change', filterAndSearch);
     typeFilterButtons.addEventListener('click', (e) => {
         const button = e.target.closest('.type-filter-btn');
         if (button) {

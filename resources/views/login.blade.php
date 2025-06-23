@@ -26,7 +26,7 @@
             bottom: -10px;
             z-index: -1;
             /* CORRIGIDO: Agora usando a imagem que você enviou */
-            background-image: url('/imagem1.jpg');
+            background-image: url('/imagem2.jpg');
             background-size: cover;
             background-position: center center;
             filter: blur(2px) brightness(0.8); /* Desfoca e escurece o fundo para destacar o formulário */
