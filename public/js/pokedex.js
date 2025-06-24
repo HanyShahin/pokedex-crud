@@ -25,11 +25,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const showCaughtOnlyCheckbox = document.getElementById('show-caught-only-checkbox');
     const progressText = document.getElementById('progress-text');
     const progressBarFill = document.getElementById('progress-bar-fill');
+
+    // --- NOVO: Elementos do Modal de Detalhes ---
+    const detailsModal = document.getElementById('pokemon-details-modal');
+    const detailsCloseBtn = document.getElementById('details-close-btn');
+    const detailsName = document.getElementById('details-name');
+    const detailsNumber = document.getElementById('details-number');
+    const detailsImage = document.getElementById('details-image');
+    const detailsTypes = document.getElementById('details-types');
+    const detailsDescription = document.getElementById('details-description');
+    const detailsPhysical = document.getElementById('details-physical');
+    const detailsAbilities = document.getElementById('details-abilities');
+    const statsChartCanvas = document.getElementById('stats-chart');
     
     // --- ESTADO DA APLICAÇÃO ---
     let allPokemonDetails = []; 
     let caughtPokemonMap = new Map();
     let activeTypeFilter = 'all';
+    let statsChartInstance = null; // NOVO: Para controlar a instância do gráfico
 
     const updateProgressBar = () => {
         const caughtCount = caughtPokemonMap.size;
@@ -100,13 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
             allPokemonDetails.sort((a,b) => a.id - b.id).forEach(pokemonDetail => {
                 const card = document.createElement('div');
                 card.id = `pokemon-card-${pokemonDetail.id}`;
-                card.className = 'pokemon-card bg-slate-800 rounded-lg shadow-md overflow-hidden flex flex-col';
+                // --- ALTERADO --- Adicionado cursor-pointer para indicar que é clicável
+                card.className = 'pokemon-card bg-slate-800 rounded-lg shadow-md overflow-hidden flex flex-col cursor-pointer';
                 card.dataset.pokename = pokemonDetail.name;
                 
                 if (caughtPokemonMap.has(pokemonDetail.id)) {
                     const caughtData = caughtPokemonMap.get(pokemonDetail.id);
                     card.innerHTML = createCaughtCardHTML(caughtData);
                     card.dataset.types = `${caughtData.type1.toLowerCase()}${caughtData.type2 ? ',' + caughtData.type2.toLowerCase() : ''}`;
+                    card.dataset.number = caughtData.number; // --- NOVO --- Adiciona o número ao card
                 } else {
                     card.classList.add('silhouette');
                     card.innerHTML = createSilhouetteCardHTML(pokemonDetail);
@@ -121,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.innerHTML = `<p class="text-red-500 col-span-full text-center">Falha ao carregar a Pokédex. Tente recarregar a página.</p>`;
         } finally {
             loader.style.display = 'none';
-            addCardEventListeners();
             filterAndSearch();
             updateProgressBar();
         }
@@ -132,12 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const id = document.getElementById('pokemon-id').value;
 
-        // NOVO: Verifica se o Pokémon já foi capturado antes de enviar
-        if (!id) { // A verificação só acontece ao criar um novo (quando não há ID)
+        if (!id) {
             const pokemonNumber = parseInt(numberInput.value, 10);
             if (caughtPokemonMap.has(pokemonNumber)) {
                 showToast('Este Pokémon já foi capturado!', 'bg-yellow-500');
-                return; // Impede o envio do formulário
+                return;
             }
         }
         
@@ -153,14 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const newOrUpdatedPokemon = await response.json();
             
-            caughtPokemonMap.set(newOrUpdatedPokemon.number, newOrUpdatedPokemon);
+            caughtPokemonMap.set(parseInt(newOrUpdatedPokemon.number, 10), newOrUpdatedPokemon);
             
             const cardToUpdate = document.getElementById(`pokemon-card-${newOrUpdatedPokemon.number}`);
             if (cardToUpdate) {
                 cardToUpdate.innerHTML = createCaughtCardHTML(newOrUpdatedPokemon);
                 cardToUpdate.classList.remove('silhouette');
                 cardToUpdate.dataset.types = `${newOrUpdatedPokemon.type1.toLowerCase()}${newOrUpdatedPokemon.type2 ? ',' + newOrUpdatedPokemon.type2.toLowerCase() : ''}`;
-                addCardEventListenersForCard(cardToUpdate);
+                cardToUpdate.dataset.number = newOrUpdatedPokemon.number;
             }
             
             showToast(id ? 'Pokémon atualizado!' : 'Captura registrada!');
@@ -175,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleDelete = async (id, cardElement) => {
         if (!confirm('Tem certeza que deseja soltar este Pokémon?')) return;
         try {
-            const pokemonNumber = parseInt(cardElement.querySelector('p').textContent.replace('#', ''));
+            const pokemonNumber = parseInt(cardElement.dataset.number);
             
             const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }});
             if (!response.ok) throw new Error('Falha ao soltar o Pokémon.');
@@ -186,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cardElement.innerHTML = createSilhouetteCardHTML(originalPokemonData);
                 cardElement.classList.add('silhouette');
                 cardElement.dataset.types = originalPokemonData.types.map(t => t.type.name).join(',');
+                delete cardElement.dataset.number; // --- NOVO --- Remove o número ao soltar
             }
             showToast('Pokémon solto com sucesso!', 'bg-yellow-500');
             filterAndSearch();
@@ -223,10 +237,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeModal = () => { modal.classList.add('hidden'); };
 
-    const showToast = (message, colorClass = 'bg-green-500') => {
-        // FIX: Limpa qualquer transformação inline anterior para garantir que o toast possa reaparecer.
-        toast.style.transform = ''; 
+    // --- NOVO: Funções para o Modal de Detalhes ---
+    const openDetailsModal = (pokemonNumber) => {
+        const caughtData = caughtPokemonMap.get(pokemonNumber);
+        const apiData = allPokemonDetails.find(p => p.id === pokemonNumber);
 
+        if (!caughtData || !apiData) return;
+
+        // Preenche informações básicas
+        detailsName.textContent = caughtData.name;
+        detailsNumber.textContent = `#${String(caughtData.number).padStart(3, '0')}`;
+        detailsImage.src = caughtData.image_url;
+        detailsDescription.textContent = caughtData.description || 'Nenhuma descrição adicionada.';
+        detailsPhysical.textContent = `Altura: ${caughtData.height}m / Peso: ${caughtData.weight}kg`;
+
+        // Preenche tipos
+        let typesHtml = `<span class="type-badge type-${caughtData.type1.toLowerCase()}">${caughtData.type1}</span>`;
+        if (caughtData.type2) {
+            typesHtml += `<span class="type-badge type-${caughtData.type2.toLowerCase()}">${caughtData.type2}</span>`;
+        }
+        detailsTypes.innerHTML = typesHtml;
+
+        // Preenche Habilidades
+        detailsAbilities.innerHTML = apiData.abilities.map(a => 
+            `<span class="bg-slate-600 text-xs font-semibold capitalize px-2 py-1 rounded-full">${a.ability.name.replace('-', ' ')}</span>`
+        ).join('');
+
+        // Cria o Gráfico de Stats
+        const statsLabels = ['HP', 'Atk', 'Def', 'S-Atk', 'S-Def', 'Spd'];
+        const statsData = apiData.stats.map(s => s.base_stat);
+
+        if (statsChartInstance) {
+            statsChartInstance.destroy();
+        }
+
+        statsChartInstance = new Chart(statsChartCanvas, {
+            type: 'radar',
+            data: {
+                labels: statsLabels,
+                datasets: [{
+                    label: 'Base Stats',
+                    data: statsData,
+                    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                    borderColor: 'rgba(74, 222, 128, 1)',
+                    pointBackgroundColor: 'rgba(74, 222, 128, 1)',
+                    pointBorderColor: '#fff',
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                        pointLabels: { color: 'white', font: { size: 12 } },
+                        ticks: {
+                            color: 'white',
+                            backdropColor: 'rgba(0, 0, 0, 0.5)',
+                            backdropPadding: 4,
+                            stepSize: 50,
+                            max: Math.max(...statsData, 150) + 10 // Garante que a escala do gráfico se ajuste
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        detailsModal.classList.remove('hidden');
+    };
+
+    const closeDetailsModal = () => {
+        detailsModal.classList.add('hidden');
+        if (statsChartInstance) {
+            statsChartInstance.destroy();
+            statsChartInstance = null;
+        }
+    };
+
+    const showToast = (message, colorClass = 'bg-green-500') => {
+        toast.style.transform = ''; 
         toastMessage.innerText = message;
         toast.className = `fixed bottom-5 right-5 text-white py-3 px-6 rounded-lg shadow-lg transform transition-transform duration-500 ease-in-out ${colorClass} translate-x-0`;
         
@@ -258,21 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             nameInput.disabled = false; 
         }
     };
-
-    const addCardEventListenersForCard = (card) => {
-        const editBtn = card.querySelector('.edit-btn');
-        const deleteBtn = card.querySelector('.delete-btn');
-        if(editBtn) {
-            editBtn.addEventListener('click', (e) => { e.stopPropagation(); openModal(parseInt(editBtn.dataset.id)); });
-        }
-        if(deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); handleDelete(parseInt(deleteBtn.dataset.id), card); });
-        }
-    };
-
-    const addCardEventListeners = () => {
-        document.querySelectorAll('.pokemon-card:not(.silhouette)').forEach(card => addCardEventListenersForCard(card));
-    };
     
     const filterAndSearch = () => {
         const searchTerm = searchInput.value.toLowerCase();
@@ -297,6 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelButton.addEventListener('click', closeModal);
     modalForm.addEventListener('submit', handleFormSubmit);
 
+    // --- NOVO: Listeners para o Modal de Detalhes ---
+    detailsCloseBtn.addEventListener('click', closeDetailsModal);
+    detailsModal.addEventListener('click', (e) => {
+        if (e.target === detailsModal) {
+            closeDetailsModal();
+        }
+    });
+
+
     nameInput.addEventListener('input', () => {
         const query = nameInput.value.toLowerCase();
         autocompleteResults.innerHTML = '';
@@ -319,11 +404,50 @@ document.addEventListener('DOMContentLoaded', () => {
     typeFilterButtons.addEventListener('click', (e) => {
         const button = e.target.closest('.type-filter-btn');
         if (button) {
-            typeFilterButtons.querySelector('.active')?.classList.remove('active', 'bg-indigo-600', 'text-white');
+            // Lógica para desativar o botão antigo e ativar o novo
+            const currentActive = typeFilterButtons.querySelector('.active');
+            if (currentActive) {
+                currentActive.classList.remove('active', 'bg-indigo-600', 'text-white');
+            }
             button.classList.add('active', 'bg-indigo-600', 'text-white');
             activeTypeFilter = button.dataset.type;
             filterAndSearch();
         }
+    });
+
+    // --- NOVO OUVINTE DE EVENTOS CENTRALIZADO PARA A GRADE ---
+    grid.addEventListener('click', (e) => {
+        // Encontra o elemento .pokemon-card mais próximo de onde o clique ocorreu
+        const card = e.target.closest('.pokemon-card');
+
+        // Se o clique não foi dentro de um card, não faz nada
+        if (!card) {
+            return;
+        }
+
+        // Verifica se o alvo específico do clique foi um botão de editar ou deletar
+        const editBtn = e.target.closest('.edit-btn');
+        const deleteBtn = e.target.closest('.delete-btn');
+
+        // Se foi o botão de editar, abre o modal de edição e para a execução
+        if (editBtn) {
+            openModal(parseInt(editBtn.dataset.id));
+            return;
+        }
+
+        // Se foi o botão de deletar, chama a função de deleção e para a execução
+        if (deleteBtn) {
+            handleDelete(parseInt(deleteBtn.dataset.id), card);
+            return;
+        }
+
+        // Se o card ainda é uma silhueta ou não tem um número, não faz nada
+        if (card.classList.contains('silhouette') || !card.dataset.number) {
+            return;
+        }
+        
+        // Se passou por todas as verificações, abre o modal de detalhes
+        openDetailsModal(parseInt(card.dataset.number, 10));
     });
 
     // --- INICIALIZAÇÃO ---

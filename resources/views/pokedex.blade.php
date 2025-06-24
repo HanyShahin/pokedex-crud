@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/pokedex.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-900 text-white pb-12">
 
@@ -144,6 +146,42 @@
 
     <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg transform translate-x-[120%]">
         <p id="toast-message"></p>
+    </div>
+
+    <div id="pokemon-details-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center p-4 z-50 hidden">
+        <div id="details-modal-content" class="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-6 text-white">
+            <button id="details-close-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-3xl z-10">&times;</button>
+            <div class="text-center mb-4">
+                <h2 id="details-name" class="text-4xl font-bold capitalize"></h2>
+                <span id="details-number" class="text-xl text-slate-400 font-bold"></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div class="flex flex-col items-center">
+                    <img id="details-image" src="" alt="Pokemon" class="w-48 h-48 object-contain">
+                    <div id="details-types" class="flex space-x-2 mt-4"></div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2 text-center text-slate-300">Base Stats</h3>
+                    <canvas id="stats-chart"></canvas>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="bg-slate-700 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-md mb-1 text-slate-300">Descrição do Treinador</h3>
+                    <p id="details-description" class="text-slate-200 text-sm"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="font-bold text-md mb-2 text-slate-300">Físico</h3>
+                        <p id="details-physical" class="text-slate-200"></p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg">
+                        <h3 class="font-bold text-md mb-2 text-slate-300">Habilidades</h3>
+                        <div id="details-abilities" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="{{ asset('js/pokedex.js') }}" defer></script>
