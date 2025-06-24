@@ -307,87 +307,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const openDetailsModal = (pokemonNumber) => {
         const caughtData = caughtPokemonMap.get(parseInt(pokemonNumber, 10));
         const apiData = allPokemonDetails.find(p => p.id === parseInt(pokemonNumber, 10));
-        const relationsContainer = document.getElementById('details-relations');
+
+        const cardContainer = document.getElementById('details-modal-content');
+        
         if (!caughtData || !apiData) {
             console.error("Não foi possível encontrar os dados para o Pokémon:", pokemonNumber);
             return;
         }
 
-        // Preenche informações básicas
-        detailsName.textContent = caughtData.name;
-        detailsNumber.textContent = `#${String(caughtData.number).padStart(3, '0')}`;
-        detailsImage.src = caughtData.image_url;
-        detailsDescription.textContent = caughtData.description || 'Nenhuma descrição adicionada.';
-        detailsPhysical.textContent = `Altura: ${caughtData.height}m / Peso: ${caughtData.weight}kg`;
+        // --- LÓGICA PRINCIPAL PARA PREENCHER A CARTA ---
 
-        // Preenche tipos
-        let typesHtml = `<span class="type-badge type-${caughtData.type1.toLowerCase()}">${caughtData.type1}</span>`;
-        if (caughtData.type2) {
-            typesHtml += `<span class="type-badge type-${caughtData.type2.toLowerCase()}">${caughtData.type2}</span>`;
-        }
-        detailsTypes.innerHTML = typesHtml;
+        // 1. Limpa classes de tipo antigas e adiciona a nova
+        cardContainer.className = 'pokemon-tcg-card max-w-md mx-auto max-h-[90vh] overflow-y-auto relative text-slate-900'; // Reseta para o padrão
+        cardContainer.classList.add(`card-bg-${caughtData.type1.toLowerCase()}`);
 
-        // Preenche Habilidades (COM A LÓGICA DE CORES)
-        detailsAbilities.innerHTML = apiData.abilities.map(a => {
-            const abilityName = a.ability.name.replace('-', ' ');
-            const backgroundColor = stringToHslColor(a.ability.name); // Gera a cor de fundo
-            
-            // Define o estilo inline com a cor de fundo gerada
-            return `<span style="background-color: ${backgroundColor}; color: white;" class="text-xs font-semibold capitalize px-2 py-1 rounded-full">
-                        ${abilityName}
-                    </span>`;
-        }).join('');
+        // 2. Preenche o cabeçalho
+        document.getElementById('details-name').textContent = caughtData.name;
+        const hpStat = apiData.stats.find(s => s.stat.name === 'hp').base_stat;
+        document.getElementById('details-hp').textContent = `HP ${hpStat}`;
+        document.getElementById('details-type-icon').src = `/images/icones/${caughtData.type1.toLowerCase()}.svg`;
 
-        // --- NOVA CHAMADA ADICIONADA AQUI ---
-        // Coleta os tipos e chama a função para calcular as relações de dano
-        const currentTypes = [caughtData.type1];
-        if (caughtData.type2) {
-            currentTypes.push(caughtData.type2);
-        }
-        calculateAndDisplayDamageRelations(currentTypes, relationsContainer);
+        // 3. Preenche a imagem
+        document.getElementById('details-image').src = caughtData.image_url;
+
+        // 4. Preenche as informações da Pokédex
+        const species = apiData.species.name;
+        document.getElementById('details-pokedex-info').textContent = `NO. ${String(caughtData.number).padStart(3, '0')} ${species}  HT: ${caughtData.height}m  WT: ${caughtData.weight}kg`;
+
+        // 5. Preenche as habilidades
+        const abilitiesContainer = document.getElementById('details-abilities');
+        renderAbilitiesWithDescriptions(apiData.abilities, abilitiesContainer);
         
-        // Cria o Gráfico de Stats
-        const statsLabels = ['HP', 'Atk', 'Def', 'S-Atk', 'S-Def', 'Spd'];
-        const statsData = apiData.stats.map(s => s.base_stat);
+        // 6. Preenche a descrição do treinador
+        document.getElementById('details-description').textContent = caughtData.description || 'Nenhuma anotação do treinador.';
 
-        if (statsChartInstance) {
-            statsChartInstance.destroy();
-        }
-
-        statsChartInstance = new Chart(statsChartCanvas, {
-            type: 'radar',
-            data: {
-                labels: statsLabels,
-                datasets: [{
-                    label: 'Base Stats',
-                    data: statsData,
-                    backgroundColor: 'rgba(74, 222, 128, 0.2)',
-                    borderColor: 'rgba(74, 222, 128, 1)',
-                    pointBackgroundColor: 'rgba(74, 222, 128, 1)',
-                    pointBorderColor: '#fff',
-                }]
-            },
-            options: {
-                scales: {
-                    r: {
-                        angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
-                        grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                        pointLabels: { color: 'white', font: { size: 12 } },
-                        ticks: {
-                            color: 'white',
-                            backdropColor: 'rgba(0, 0, 0, 0.5)',
-                            backdropPadding: 4,
-                            stepSize: 50,
-                            max: Math.max(...statsData, 150) + 10
-                        }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-
+        // 7. Preenche as fraquezas (usando a função que já tínhamos)
+        const weaknessesContainer = document.getElementById('details-weaknesses');
+        const currentTypes = [caughtData.type1];
+        if (caughtData.type2) currentTypes.push(caughtData.type2);
+        // Adaptação da chamada para o novo container de fraquezas
+        calculateAndDisplayDamageRelations(currentTypes, weaknessesContainer);
+        
+        // Mostra o modal
         detailsModal.classList.remove('hidden');
     };
 
@@ -396,6 +357,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statsChartInstance) {
             statsChartInstance.destroy();
             statsChartInstance = null;
+        }
+    };
+
+    // --- NOVA FUNÇÃO PARA BUSCAR E EXIBIR AS DESCRIÇÕES DAS HABILIDADES ---
+    const renderAbilitiesWithDescriptions = async (abilities, container) => {
+        container.innerHTML = '<p class="text-xs italic text-slate-700/80">Carregando...</p>';
+
+        try {
+            const abilityPromises = abilities.map(a => fetch(a.ability.url).then(res => res.json()));
+            const abilitiesDetails = await Promise.all(abilityPromises);
+
+            const abilitiesHtml = abilitiesDetails.map(detail => {
+                const abilityName = detail.name.replace('-', ' ');
+
+                // --- ESTA É A PARTE QUE MUDOU ---
+                // Em vez de 'effect_entries', buscamos em 'flavor_text_entries'
+                const flavorTextEntry = detail.flavor_text_entries.find(entry => entry.language.name === 'en');
+                
+                // Usamos 'flavor_text' em vez de 'short_effect'
+                const description = flavorTextEntry ? flavorTextEntry.flavor_text : 'Sem descrição curta.';
+                // --- FIM DA MUDANÇA ---
+
+                return `<div class="mb-3">
+                            <strong class="capitalize text-lg font-bold text-slate-800">${abilityName}</strong>
+                            <p class="text-xs mt-1 text-slate-900/90">${description}</p>
+                        </div>`;
+            }).join('');
+
+            container.innerHTML = abilitiesHtml;
+
+        } catch (error) {
+            console.error("Erro ao buscar detalhes das habilidades:", error);
+            container.innerHTML = '<p class="text-red-500 text-xs">Não foi possível carregar as descrições.</p>';
         }
     };
 

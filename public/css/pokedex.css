@@ -132,3 +132,46 @@ body::before {
     /* O blur e outros filtros são aplicados APENAS aqui */
     filter: blur(2px) brightness(0.8);
 }
+
+/* Estilo base da carta */
+.pokemon-tcg-card {
+    border: 8px solid #fde047; /* Borda amarela, clássica das cartas */
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 2px #422800, 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    color: #422800; /* Cor de texto escura, como nas cartas */
+}
+
+/* Fundos baseados nos tipos */
+.card-bg-grass { background: linear-gradient(135deg, #a8ff98, #60d34a); }
+.card-bg-fire { background: linear-gradient(135deg, #ffb080, #f56e2d); }
+.card-bg-water { background: linear-gradient(135deg, #99d8ff, #4792d3); }
+.card-bg-bug { background: linear-gradient(135deg, #d8e060, #a8b820); }
+.card-bg-normal { background: linear-gradient(135deg, #d8d8b0, #a8a878); }
+.card-bg-poison { background: linear-gradient(135deg, #d080d0, #a040a0); }
+.card-bg-electric { background: linear-gradient(135deg, #fff080, #f8d030); }
+.card-bg-ground { background: linear-gradient(135deg, #f0e0a0, #e0c068); }
+.card-bg-fairy { background: linear-gradient(135deg, #ffc0cb, #ee99ac); }
+.card-bg-fighting { background: linear-gradient(135deg, #e08078, #c03028); }
+.card-bg-psychic { background: linear-gradient(135deg, #ffa0c0, #f85888); }
+.card-bg-rock { background: linear-gradient(135deg, #e0d088, #b8a038); }
+.card-bg-ghost { background: linear-gradient(135deg, #b098d0, #705898); }
+.card-bg-ice { background: linear-gradient(135deg, #c0f0f0, #98d8d8); }
+.card-bg-dragon { background: linear-gradient(135deg, #b088ff, #7038f8); }
+.card-bg-dark { background: linear-gradient(135deg, #b09888, #705848); }
+.card-bg-steel { background: linear-gradient(135deg, #d8d8e0, #b8b8d0); }
+.card-bg-flying { background: linear-gradient(135deg, #d8c8ff, #a890f0); }
+
+/* Estilo da imagem principal */
+.pokemon-tcg-card .image-frame {
+    background-color: rgba(255, 255, 255, 0.3);
+    margin: 1rem;
+    padding: 0.5rem;
+    border: 2px solid rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+.pokemon-tcg-card hr {
+    border-color: rgba(66, 40, 0, 0.3); /* Cor marrom com opacidade */
+    margin: 0.5rem 1rem;
+}
