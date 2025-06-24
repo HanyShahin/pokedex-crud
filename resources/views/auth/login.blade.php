@@ -66,9 +66,14 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .pokedex-screen {
-            background-color: #a7f3d0;
+            /* background-color: #a7f3d0; */ /* Linha removida/comentada */
+            background-image: url('/tela.jpg'); /* ADICIONE O CAMINHO DA SUA IMAGEM AQUI */
+            filter: blur(0.1px);
+            background-size: cover; /* Faz a imagem cobrir toda a área */
+            background-position: center; /* Centraliza a imagem */
             border: 4px solid #064e3b;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            
         }
     </style>
 </head>
