@@ -44,6 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeTypeFilter = 'all';
     let statsChartInstance = null; // NOVO: Para controlar a instância do gráfico
 
+    // --- NOVA FUNÇÃO AUXILIAR PARA GERAR CORES A PARTIR DE UM TEXTO ---
+    const stringToHslColor = (str, saturation = 75, lightness = 45) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        const hue = hash % 360;
+        return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    };  
+
     const updateProgressBar = () => {
         const caughtCount = caughtPokemonMap.size;
         const totalCount = allPokemonDetails.length || 151;
@@ -76,6 +87,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
+    };
+
+    // --- NOVA FUNÇÃO PARA CALCULAR E EXIBIR AS RELAÇÕES DE DANO ---
+    const calculateAndDisplayDamageRelations = async (types, relationsContainer) => {
+        try {
+            relationsContainer.innerHTML = '<p class="text-slate-400">Calculando...</p>';
+
+            // 1. & 2. A busca e o cálculo dos multiplicadores continuam os mesmos
+            const typePromises = types.map(type => fetch(`https://pokeapi.co/api/v2/type/${type.toLowerCase()}`).then(res => res.json()));
+            const typesData = await Promise.all(typePromises);
+
+            const damageMultipliers = {};
+            const allTypes = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+            allTypes.forEach(t => { damageMultipliers[t] = 1; });
+
+            typesData.forEach(typeData => {
+                const relations = typeData.damage_relations;
+                relations.double_damage_from.forEach(t => { damageMultipliers[t.name] *= 2; });
+                relations.half_damage_from.forEach(t => { damageMultipliers[t.name] *= 0.5; });
+                relations.no_damage_from.forEach(t => { damageMultipliers[t.name] *= 0; });
+            });
+
+            // 3. Coletar todas as fraquezas (2x e 4x) em uma lista única
+            const weaknesses = [];
+            for (const type in damageMultipliers) {
+                const multiplier = damageMultipliers[type];
+                if (multiplier >= 2) {
+                    weaknesses.push({ name: type, multiplier: multiplier });
+                }
+            }
+            
+            // Opcional: Ordenar para que as fraquezas 4x apareçam primeiro
+            weaknesses.sort((a, b) => b.multiplier - a.multiplier);
+
+            // 4. Gerar o HTML com uma lista única de badges
+            let html = '';
+            if (weaknesses.length > 0) {
+                const badgesHtml = weaknesses.map(weakness => {
+                    // Adiciona a classe de destaque se a fraqueza for 4x
+                    const highlightClass = weakness.multiplier === 4 ? 'super-weakness-badge' : '';
+                    
+                    // Retorna o badge, com a classe de destaque se aplicável
+                    return `<span class="type-badge type-${weakness.name.toLowerCase()} ${highlightClass}">${weakness.name}</span>`;
+                }).join('');
+
+                // Envolve todos os badges em um único container flexível
+                html = `<div class="flex flex-wrap gap-2">${badgesHtml}</div>`;
+            }
+            
+            relationsContainer.innerHTML = html || '<p class="text-slate-400">Este Pokémon não possui fraquezas.</p>';
+
+        } catch (error) {
+            console.error("Erro ao buscar relações de dano:", error);
+            relationsContainer.innerHTML = '<p class="text-red-500">Não foi possível carregar as fraquezas.</p>';
+        }
     };
 
     const createSilhouetteCardHTML = (pokemon) => {
@@ -239,10 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- NOVO: Funções para o Modal de Detalhes ---
     const openDetailsModal = (pokemonNumber) => {
-        const caughtData = caughtPokemonMap.get(pokemonNumber);
-        const apiData = allPokemonDetails.find(p => p.id === pokemonNumber);
-
-        if (!caughtData || !apiData) return;
+        const caughtData = caughtPokemonMap.get(parseInt(pokemonNumber, 10));
+        const apiData = allPokemonDetails.find(p => p.id === parseInt(pokemonNumber, 10));
+        const relationsContainer = document.getElementById('details-relations');
+        if (!caughtData || !apiData) {
+            console.error("Não foi possível encontrar os dados para o Pokémon:", pokemonNumber);
+            return;
+        }
 
         // Preenche informações básicas
         detailsName.textContent = caughtData.name;
@@ -258,11 +327,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         detailsTypes.innerHTML = typesHtml;
 
-        // Preenche Habilidades
-        detailsAbilities.innerHTML = apiData.abilities.map(a => 
-            `<span class="bg-slate-600 text-xs font-semibold capitalize px-2 py-1 rounded-full">${a.ability.name.replace('-', ' ')}</span>`
-        ).join('');
+        // Preenche Habilidades (COM A LÓGICA DE CORES)
+        detailsAbilities.innerHTML = apiData.abilities.map(a => {
+            const abilityName = a.ability.name.replace('-', ' ');
+            const backgroundColor = stringToHslColor(a.ability.name); // Gera a cor de fundo
+            
+            // Define o estilo inline com a cor de fundo gerada
+            return `<span style="background-color: ${backgroundColor}; color: white;" class="text-xs font-semibold capitalize px-2 py-1 rounded-full">
+                        ${abilityName}
+                    </span>`;
+        }).join('');
 
+        // --- NOVA CHAMADA ADICIONADA AQUI ---
+        // Coleta os tipos e chama a função para calcular as relações de dano
+        const currentTypes = [caughtData.type1];
+        if (caughtData.type2) {
+            currentTypes.push(caughtData.type2);
+        }
+        calculateAndDisplayDamageRelations(currentTypes, relationsContainer);
+        
         // Cria o Gráfico de Stats
         const statsLabels = ['HP', 'Atk', 'Def', 'S-Atk', 'S-Def', 'Spd'];
         const statsData = apiData.stats.map(s => s.base_stat);
@@ -295,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             backdropColor: 'rgba(0, 0, 0, 0.5)',
                             backdropPadding: 4,
                             stepSize: 50,
-                            max: Math.max(...statsData, 150) + 10 // Garante que a escala do gráfico se ajuste
+                            max: Math.max(...statsData, 150) + 10
                         }
                     }
                 },
@@ -325,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.style.transform = 'translateX(120%)'; 
         }, 3000);
     };
+
 
     const onSuggestionClick = async (pokemon) => {
         autocompleteResults.innerHTML = '';

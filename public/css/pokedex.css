@@ -100,3 +100,11 @@ body {
 #stats-chart {
     color: white;
 }
+
+.super-weakness-badge {
+    /* Adiciona um brilho vermelho ao redor do badge */
+    box-shadow: 0 0 10px 2px rgba(248, 113, 113, 0.6); /* Vermelho do Tailwind (red-400) com opacidade */
+    
+    /* Opcional: uma borda sutil para reforçar */
+    border: 1px solid rgba(252, 165, 165, 0.8);
+}

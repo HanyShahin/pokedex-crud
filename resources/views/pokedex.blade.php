@@ -58,7 +58,7 @@
 
                     <div class="flex items-center mt-4">
                     <input id="show-caught-only-checkbox" type="checkbox" class="h-4 w-4 rounded border-slate-500 bg-slate-600 text-indigo-600 focus:ring-indigo-500">
-                    <label for="show-caught-only-checkbox" class="ml-2 text-sm font-medium text-slate-300">Mostrar apenas capturados</label>
+                    <label for="show-caught-only-checkbox" class="ml-2 text-sm font-medium text-slate-300">Mostrar apenas registrados</label>
                 </div>
                 </div>
                 <div class="md:col-span-2">
@@ -178,6 +178,12 @@
                     <div class="bg-slate-700 p-4 rounded-lg">
                         <h3 class="font-bold text-md mb-2 text-slate-300">Habilidades</h3>
                         <div id="details-abilities" class="flex flex-wrap gap-2"></div>
+                    </div>
+                     <div class="bg-slate-700 p-4 rounded-lg md:col-span-2">
+                        <h3 class="font-bold text-md mb-2 text-slate-300">Fraquezas</h3>
+                        <div id="details-relations" class="text-sm">
+                            {{-- O conteúdo será inserido aqui pelo JavaScript --}}
+                        </div>
                     </div>
                 </div>
             </div>
