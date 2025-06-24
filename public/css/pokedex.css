@@ -108,3 +108,27 @@ body {
     /* Opcional: uma borda sutil para reforçar */
     border: 1px solid rgba(252, 165, 165, 0.8);
 }
+
+body::before {
+    /* O pseudo-elemento precisa desta propriedade para existir */
+    content: '';
+
+    /* Posicionamento para cobrir toda a tela, fixo no lugar */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    /* Coloca o pseudo-elemento atrás de todo o conteúdo */
+    z-index: -1;
+
+    /* APLIQUE A IMAGEM E OS FILTROS AQUI */
+    background-image: url("/background.jpg");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center; /* Garante que a imagem esteja centralizada */
+    
+    /* O blur e outros filtros são aplicados APENAS aqui */
+    filter: blur(2px) brightness(0.8);
+}

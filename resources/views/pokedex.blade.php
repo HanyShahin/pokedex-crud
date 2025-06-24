@@ -16,7 +16,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-900 text-white pb-12">
+<body class="panel bg-slate-900 text-white pb-12">
 
     <header class="container mx-auto px-4 py-8 flex justify-between items-center">
         <div class="text-left">
