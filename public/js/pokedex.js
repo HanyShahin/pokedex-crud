@@ -485,9 +485,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Lógica para desativar o botão antigo e ativar o novo
             const currentActive = typeFilterButtons.querySelector('.active');
             if (currentActive) {
-                currentActive.classList.remove('active', 'bg-indigo-600', 'text-white');
+                currentActive.classList.remove('active');
             }
-            button.classList.add('active', 'bg-indigo-600', 'text-white');
+            button.classList.add('active'); // <-- Apenas a classe 'active' é adicionada
             activeTypeFilter = button.dataset.type;
             filterAndSearch();
         }

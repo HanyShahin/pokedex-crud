@@ -50,43 +50,102 @@
             </button>
         </div>
 
-        <div class="mb-8 p-4 bg-slate-800 rounded-lg shadow-md">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <div class="md:col-span-1">
-                    <label for="search-input" class="block text-slate-400 mb-2 font-semibold">Buscar por Nome:</label>
-                    <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2">
-
-                    <div class="flex items-center mt-4">
-                    <input id="show-caught-only-checkbox" type="checkbox" class="h-4 w-4 rounded border-slate-500 bg-slate-600 text-indigo-600 focus:ring-indigo-500">
-                    <label for="show-caught-only-checkbox" class="ml-2 text-sm font-medium text-slate-300">Mostrar apenas registrados</label>
-                </div>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-slate-400 mb-2 font-semibold">Filtrar por Tipo:</label>
-                    <div id="type-filter-buttons" class="flex flex-wrap gap-2">
-                        <button class="type-filter-btn active px-3 py-1.5 rounded-full text-sm font-semibold bg-indigo-600 text-white" data-type="all">Todos</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-grass" data-type="grass">Grass</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fire" data-type="fire">Fire</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-water" data-type="water">Water</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-bug" data-type="bug">Bug</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-normal" data-type="normal">Normal</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-poison" data-type="poison">Poison</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-electric" data-type="electric">Electric</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ground" data-type="ground">Ground</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fairy" data-type="fairy">Fairy</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-fighting" data-type="fighting">Fighting</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-psychic" data-type="psychic">Psychic</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-rock" data-type="rock">Rock</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ghost" data-type="ghost">Ghost</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-ice" data-type="ice">Ice</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-dragon" data-type="dragon">Dragon</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-flying" data-type="flying">Flying</button>
-                        <button class="type-filter-btn px-3 py-1.5 rounded-full text-sm font-semibold type-steel" data-type="steel">Steel</button>
-                    </div>
-                </div>
-                
+        <div class="mb-8 p-6 bg-slate-800 rounded-lg shadow-md">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex-grow">
+            <label for="search-input" class="block text-slate-400 mb-2 font-semibold">Buscar por Nome:</label>
+            <input type="text" id="search-input" placeholder="Ex: Pikachu" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white">
+        </div>
+        <div class="flex-shrink-0 md:pt-8"> <div class="flex items-center">
+                <input id="show-caught-only-checkbox" type="checkbox" class="h-4 w-4 rounded border-slate-500 bg-slate-600 text-indigo-600 focus:ring-indigo-500">
+                <label for="show-caught-only-checkbox" class="ml-2 text-sm font-medium text-slate-300">Mostrar apenas registrados</label>
             </div>
         </div>
+    </div>
+
+    <hr class="my-6 border-slate-700">
+
+    <div>
+        <label class="block text-slate-400 mb-4 font-semibold text-center">Filtrar por Tipo:</label>
+        <div id="type-filter-buttons" class="flex flex-wrap gap-x-6 gap-y-4 justify-center">
+        
+            <button class="type-filter-btn flex flex-col items-center gap-y-1 active" data-type="all" title="Todos">
+                <i class="fas fa-globe fa-2x text-slate-400"></i>
+                <span class="text-xs font-semibold text-slate-400 uppercase mt-1">Todos</span>
+            </button>
+            
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="grass" title="Grass">
+                <img src="/images/icones/grass.svg" alt="Grass" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Grass</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="fire" title="Fire">
+                <img src="/images/icones/fire.svg" alt="Fire" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Fire</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="water" title="Water">
+                <img src="/images/icones/water.svg" alt="Water" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Water</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="bug" title="Bug">
+                <img src="/images/icones/bug.svg" alt="Bug" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Bug</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="normal" title="Normal">
+                <img src="/images/icones/normal.svg" alt="Normal" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Normal</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="poison" title="Poison">
+                <img src="/images/icones/poison.svg" alt="Poison" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Poison</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="electric" title="Electric">
+                <img src="/images/icones/electric.svg" alt="Electric" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Electric</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="ground" title="Ground">
+                <img src="/images/icones/ground.svg" alt="Ground" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Ground</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="fairy" title="Fairy">
+                <img src="/images/icones/fairy.svg" alt="Fairy" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Fairy</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="fighting" title="Fighting">
+                <img src="/images/icones/fighting.svg" alt="Fighting" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Fighting</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="psychic" title="Psychic">
+                <img src="/images/icones/psychic.svg" alt="Psychic" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Psychic</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="rock" title="Rock">
+                <img src="/images/icones/rock.svg" alt="Rock" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Rock</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="ghost" title="Ghost">
+                <img src="/images/icones/ghost.svg" alt="Ghost" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Ghost</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="ice" title="Ice">
+                <img src="/images/icones/ice.svg" alt="Ice" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Ice</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="dragon" title="Dragon">
+                <img src="/images/icones/dragon.svg" alt="Dragon" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Dragon</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="flying" title="Flying">
+                <img src="/images/icones/flying.svg" alt="Flying" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Flying</span>
+            </button>
+            <button class="type-filter-btn flex flex-col items-center gap-y-1" data-type="steel" title="Steel">
+                <img src="/images/icones/steel.svg" alt="Steel" class="w-10 h-10">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Steel</span>
+            </button>
+
+        </div>
+    </div>
+</div>
         
         <div id="pokemon-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
         <div id="loader" class="flex justify-center items-center py-16"><div class="pokeball-loader"></div></div>
